@@ -1,6 +1,8 @@
 streamlit
 scikit-learn
-scikit-image
-joblib
 numpy
 Pillow
+joblib
+matplotlib
+seaborn
+scikit-image
