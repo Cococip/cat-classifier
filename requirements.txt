@@ -1,7 +1,6 @@
 streamlit
 scikit-learn
-opencv-python
 scikit-image
 joblib
 numpy
-matplotlib
+Pillow
