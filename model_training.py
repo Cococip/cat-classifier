@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix
 from collections import Counter
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ from utils.preprocessing import preprocess_features
 base_path = 'dataset/12-ras-kucing'
 X, y = [], []
 
-# Load data
+# Load + augmentasi data
 for label in os.listdir(base_path):
     folder = os.path.join(base_path, label)
     if os.path.isdir(folder):
@@ -24,9 +24,22 @@ for label in os.listdir(base_path):
                 path = os.path.join(folder, file)
                 try:
                     img = Image.open(path).convert("RGB")
+
+                    # Asli
                     features = preprocess_features(img)
                     X.append(features)
                     y.append(label)
+
+                    # Flip horizontal
+                    flipped = img.transpose(Image.FLIP_LEFT_RIGHT)
+                    X.append(preprocess_features(flipped))
+                    y.append(label)
+
+                    # Rotate 15 deg
+                    rotated = img.rotate(15)
+                    X.append(preprocess_features(rotated))
+                    y.append(label)
+
                 except Exception as e:
                     print(f"❌ Error: {path} -> {e}")
 
@@ -41,9 +54,22 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 # Split data
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_encoded, test_size=0.2, stratify=y_encoded, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y_encoded, test_size=0.2, stratify=y_encoded, random_state=42
+)
 
-# Train SVM
+# (Optional) Tuning SVM dengan GridSearchCV
+# param_grid = {
+#     'C': [1, 10, 100],
+#     'gamma': ['scale', 0.01, 0.001],
+#     'kernel': ['rbf']
+# }
+# grid = GridSearchCV(SVC(probability=True), param_grid, cv=3, verbose=2, n_jobs=-1)
+# grid.fit(X_train, y_train)
+# model = grid.best_estimator_
+# print("Best params:", grid.best_params_)
+
+# Train model biasa (tanpa grid search)
 model = SVC(kernel='rbf', probability=True)
 model.fit(X_train, y_train)
 
