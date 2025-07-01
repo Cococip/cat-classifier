@@ -11,9 +11,11 @@ import seaborn as sns
 import joblib
 from utils.preprocessing import preprocess_features
 
-X, y = [], []
+# Dataset folder
 base_path = 'dataset/12-ras-kucing'
+X, y = [], []
 
+# Load data
 for label in os.listdir(base_path):
     folder = os.path.join(base_path, label)
     if os.path.isdir(folder):
@@ -26,7 +28,7 @@ for label in os.listdir(base_path):
                     X.append(features)
                     y.append(label)
                 except Exception as e:
-                    print(f"❌ Error: {path}", e)
+                    print(f"❌ Error: {path} -> {e}")
 
 print("Jumlah data per kelas:", Counter(y))
 
@@ -34,7 +36,7 @@ print("Jumlah data per kelas:", Counter(y))
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 
-# Normalisasi
+# Normalisasi fitur
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
